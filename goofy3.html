@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nostalgist NES Emulator with Mobile Controls</title>
+    <script src="https://unpkg.com/nostalgist"></script>
+    <style>
+        /* Style the emulator container */
+        #emulatorContainer {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Styling for the on-screen buttons */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10; /* Ensure buttons stay on top */
+        }
+
+        .control-button {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 16px;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .control-button:active {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .dpad {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            display: grid;
+            grid-template-columns: 60px 60px 60px;
+            grid-template-rows: 60px 60px 60px;
+            gap: 5px;
+            z-index: 10; /* Ensure D-Pad stays on top */
+        }
+
+        .dpad-button {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 10%;
+            border: none;
+        }
+
+        .dpad-button:active {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Layout of directional buttons */
+        .dpad-button.up { grid-column: 2; grid-row: 1; }
+        .dpad-button.left { grid-column: 1; grid-row: 2; }
+        .dpad-button.right { grid-column: 3; grid-row: 2; }
+        .dpad-button.down { grid-column: 2; grid-row: 3; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Nostalgist NES Emulator with Mobile Controls</h1>
+    <input type="file" id="fileInput" accept=".nes" />
+    <button onclick="loadGame()">Load NES Game</button>
+
+    <!-- Emulator container to keep the buttons visible -->
+    <div id="emulatorContainer"></div>
+
+    <!-- On-screen controls for A, B, Start, Select -->
+    <div class="controls">
+        <button class="control-button" id="buttonA">A</button>
+        <button class="control-button" id="buttonB">B</button>
+        <button class="control-button" id="buttonStart">Start</button>
+        <button class="control-button" id="buttonSelect">Select</button>
+    </div>
+
+    <!-- D-Pad controls -->
+    <div class="dpad">
+        <button class="dpad-button up" id="buttonUp">▲</button>
+        <button class="dpad-button left" id="buttonLeft">◀</button>
+        <button class="dpad-button right" id="buttonRight">▶</button>
+        <button class="dpad-button down" id="buttonDown">▼</button>
+    </div>
+
+    <script>
+        let nostalgistInstance;
+
+        async function loadGame() {
+            try {
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput.files.length === 0) {
+                    alert('Please select an NES file to load.');
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                const container = document.getElementById('emulatorContainer');
+                nostalgistInstance = await Nostalgist.nes(file, { parent: container });
+
+                setupControls();
+            } catch (error) {
+                console.error('Error loading the game:', error);
+            }
+        }
+
+        function setupControls() {
+            if (!nostalgistInstance) return;
+
+            const keyMap = {
+                buttonA: 'KeyX',     // Map "A" button to keyboard "X"
+                buttonB: 'KeyZ',     // Map "B" button to keyboard "Z"
+                buttonStart: 'Enter', // Map "Start" button to "Enter"
+                buttonSelect: 'ShiftRight', // Map "Select" button to "Shift"
+
+                buttonUp: 'ArrowUp',
+                buttonLeft: 'ArrowLeft',
+                buttonRight: 'ArrowRight',
+                buttonDown: 'ArrowDown'
+            };
+
+            Object.keys(keyMap).forEach(buttonId => {
+                const buttonElement = document.getElementById(buttonId);
+                buttonElement.addEventListener('touchstart', () => {
+                    document.dispatchEvent(new KeyboardEvent('keydown', { code: keyMap[buttonId] }));
+                });
+                buttonElement.addEventListener('touchend', () => {
+                    document.dispatchEvent(new KeyboardEvent('keyup', { code: keyMap[buttonId] }));
+                });
+            });
+        }
+    </script>
+</body>
+</html>
