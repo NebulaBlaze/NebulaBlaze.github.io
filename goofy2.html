@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nostalgist NES Emulator</title>
+    <script src="https://unpkg.com/nostalgist"></script>
+</head>
+<body>
+    <h1>Welcome to Nostalgist NES Emulator</h1>
+    <input type="file" id="fileInput" accept=".nes" />
+    <button onclick="loadGame()">Load NES Game</button>
+
+    <script>
+        async function loadGame() {
+            try {
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput.files.length === 0) {
+                    alert('Please select an NES file to load.');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                await Nostalgist.nes(file);
+            } catch (error) {
+                console.error('Error loading the game:', error);
+            }
+        }
+    </script>
+</body>
+</html>
